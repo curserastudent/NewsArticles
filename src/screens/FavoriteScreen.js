@@ -34,7 +34,8 @@ export default function FavoriteScreen() {
             borderRadius: 5,
             marginTop: 10,
             width: 100,
-            alignItems: "center ",
+            alignItems: "center",
+            marginLeft: 20,
           }}
         >
           <Text style={{ color: "#fff" }}>Go back</Text>
@@ -42,6 +43,29 @@ export default function FavoriteScreen() {
       </View>
     );
   }
+
+  const saveArticle = async () => {
+    const newArticle = { title, image, description };
+    try {
+      const existingArticles = await AsyncStorage.getItem("customArticles");
+      const articles = existingArticles ? JSON.parse(existingArticles) : [];
+
+      // If editing an article, update it; otherwise, add a new one
+      if (articleToEdit !== undefined) {
+        articles[articleIndex] = newArticle;
+        await AsyncStorage.setItem("customArticles", JSON.stringify(articles));
+        if (onArticleEdited) onArticleEdited(); // Notify the edit
+      } else {
+        articles.push(newArticle); // Add new article
+        await AsyncStorage.setItem("customArticles", JSON.stringify(articles));
+      }
+
+      navigation.goBack(); // Return to the previous screen
+    } catch (error) {
+      console.error("Error saving the article:", error);
+    }
+  };
+
 
   return (
     <>
@@ -55,7 +79,28 @@ export default function FavoriteScreen() {
         </Text>
 
 
-        
+         <FlatList
+        data={favoriteArticlesList}
+        contentContainerStyle={styles.listContentContainer}
+        keyExtractor={(item) => item.idArticle} // Update the key according to your article data
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.cardContainer}
+            onPress={() => navigation.navigate("ArticleDetail", item)} // Navigate to the article detail screen
+          >
+            <Image
+              source={{ uri: item.thumbnail }} // Assuming your articles have a thumbnail field
+              style={styles.articleImage}
+            />
+            <Text style={styles.articleTitle}>
+              {item.title.length > 20
+                ? `${item.title.slice(0, 20)}...`
+                : item.title}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
+
       </View>
     
      
