@@ -53,6 +53,9 @@ export default function FavoriteScreen() {
         >
           My Favorite Articles
         </Text>
+
+
+        
       </View>
     
      
